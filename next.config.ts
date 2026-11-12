@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   },
   // Metadata icons are prerendered for hosting without a Next server.
   cacheComponents: false,
-  partialPrefetching: !pages,
+  partialPrefetching: false,
   ...(pages ? {} : { async headers() {
     return [{ source: "/sw.js", headers: [
       { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
