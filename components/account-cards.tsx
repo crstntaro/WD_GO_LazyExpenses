@@ -1,0 +1,8 @@
+"use client";
+import { assetPath } from "@/lib/asset-path";
+import Image from "next/image";
+import { money, type Transaction } from "@/lib/finance";
+import { ACCOUNT_KIND_LABELS, accountBalanceCents, accountProvider, type PaymentAccount } from "@/lib/accounts";
+export function AccountCards({ accounts, items, onEdit }: { accounts: PaymentAccount[]; items: Transaction[]; onEdit?: (id: string) => void }) {
+  return <div className="wallet-cards">{accounts.filter((account)=>!account.archived).map((account)=>{const brand=accountProvider(account),balance=accountBalanceCents(account,items);return <button type="button" key={account.id} data-account-id={account.id} className="wallet-card" data-provider={brand} onClick={()=>onEdit?.(account.id)} aria-label={`Edit ${account.name}`}><div className="wallet-card-top">{brand!=="other"?<span className="provider-logo"><Image unoptimized src={assetPath(`/brand/providers/${brand}.${brand === "metrobank" ? "png" : "svg"}`)} alt={brand === "gcash" ? "GCash" : brand === "bpi" ? "BPI" : brand === "bdo" ? "BDO" : brand === "maya" ? "Maya" : "Metrobank"} width="100" height="30" /></span>:<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 9h20m-5 6h2"/></svg>}<span>{ACCOUNT_KIND_LABELS[account.kind]}</span></div><strong className="wallet-name">{account.name}</strong><span className="wallet-balance-label">{account.kind==="card"?"Recorded amount owed":"Recorded balance"}</span><strong className="wallet-balance">{balance===null?"Set an amount":money(balance/100)}</strong><span className="wallet-card-edit">Edit account <span aria-hidden="true">↗</span></span></button>})}</div>;
+}
