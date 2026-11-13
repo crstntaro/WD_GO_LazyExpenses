@@ -47,7 +47,8 @@ claim of complete accessibility conformance.
    settings/control edges show click targets before hover. Account has a persistent
    accent treatment. Labels retain readable foregrounds as the pill slides; filled
    Iris with fading label colors was rejected because it introduced low-contrast
-   intermediate frames. Theme changes still reveal whole palettes together.
+   intermediate frames. Theme changes still reveal whole palettes together. Calendar selections also switch
+   their foreground/background together instead of fading through a weak midpoint.
    [Before](before-dark-Settings.png) · [After](after-dark-Settings.png)
 
 The tab reset now happens after the panel DOM updates, with scroll anchoring

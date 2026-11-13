@@ -12,6 +12,7 @@ test('unfocused controls, placeholder and selected navigation have measurable co
  for(const theme of ['dark','light']){
   if(theme==='light'){await page.getByRole('tab',{name:'Settings',exact:true}).click();await page.locator('#appearance-title-section > summary').click();await page.getByRole('switch',{name:'Light mode',exact:true}).click();await page.waitForTimeout(450);await page.getByRole('tab',{name:'Log',exact:true}).click();}
   await page.mouse.move(0,0);const pairs=await contrastPairs(page);for(const [key,pair] of Object.entries(pairs))expect(ratio(pair[0],pair[1]),`${theme} ${key}`).toBeGreaterThanOrEqual(key==='selected'||key==='placeholder'?4.5:3);
+  await page.getByRole('tab',{name:'Analytics',exact:true}).click();const date=page.locator('.calendar-grid button:not(:disabled)').first();if(await date.getAttribute('aria-pressed')==='true')await date.click();await date.click();const colors=await date.evaluate(e=>{const s=getComputedStyle(e);return [s.color,s.backgroundColor]});expect(ratio(colors[0],colors[1]),`${theme} selected date`).toBeGreaterThanOrEqual(4.5);await page.getByRole('tab',{name:'Log',exact:true}).click();
  }
 });
 test('extreme custom colors retain readable active text and a visible action boundary',async({page})=>{

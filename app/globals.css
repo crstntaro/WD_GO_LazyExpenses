@@ -1216,3 +1216,6 @@ button:disabled { cursor: default; }
 :root[data-transparency="solid"] .nav-selection { background: color-mix(in srgb,var(--action) 22%,var(--surface)); }
 @media(prefers-reduced-transparency:reduce),(prefers-contrast:more) { .nav-selection { background: color-mix(in srgb,var(--action) 22%,var(--surface)); border-color: var(--accent); } }
 .period-options button { transition: transform 180ms var(--motion-ease); }
+/* Filled date states also swap foreground/background together. */
+.calendar-grid button { transition: border-color 180ms var(--motion-ease), transform 180ms var(--motion-ease); }
+.account-avatar { transition: transform var(--motion-duration) var(--motion-ease), box-shadow var(--motion-duration) var(--motion-ease); }
