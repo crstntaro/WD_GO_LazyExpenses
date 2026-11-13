@@ -25,6 +25,7 @@ export function DashboardArrival({ active, onComplete, children }: Props) {
     wasActive.current = true;
     let disposed = false;
     const animations: Animation[] = [];
+    let decodeTimer: ReturnType<typeof setTimeout> | undefined;
     const container = containerRef.current;
     const overlay = overlayRef.current;
     const anchor = anchorRef.current;
@@ -53,8 +54,13 @@ export function DashboardArrival({ active, onComplete, children }: Props) {
 
     async function arrive() {
       try {
-        await mascot!.decode();
+        const ready = await Promise.race([
+          mascot!.decode().then(() => true, () => false),
+          new Promise<boolean>(resolve => { decodeTimer = setTimeout(() => resolve(false), 2500); }),
+        ]);
+        clearTimeout(decodeTimer);
         if (disposed) return;
+        if (!ready) { complete(); return; }
 
         const start = mascot!.getBoundingClientRect();
         const destination = target!.getBoundingClientRect();
@@ -88,7 +94,7 @@ export function DashboardArrival({ active, onComplete, children }: Props) {
         if (captionRef.current) {
           captionRef.current.style.top = `${start.top + start.height + 24}px`;
           animations.push(captionRef.current.animate([
-            { opacity: 0, offset: 0 },
+            { opacity: 1, offset: 0 },
             { opacity: 1, offset: duration / flightDuration },
             { opacity: 1, offset: holdEnd - .06 },
             { opacity: 0, offset: Math.min(.95, holdEnd + .12) },
@@ -124,6 +130,7 @@ export function DashboardArrival({ active, onComplete, children }: Props) {
     void arrive();
     return () => {
       disposed = true;
+      clearTimeout(decodeTimer);
       animations.forEach((animation) => animation.cancel());
       delete container.dataset.arrivalPhase;
     };
@@ -135,7 +142,7 @@ export function DashboardArrival({ active, onComplete, children }: Props) {
       {active && (
         <div ref={overlayRef} className="mascot-arrival-overlay" role="status" aria-label="All set. Opening your tracker.">
           <div ref={anchorRef} className="arrival-mascot-anchor">
-            <Image ref={mascotRef} src={assetPath("/brand/detective-cooking.png")} alt="" width={200} height={200} loading="eager"
+            <Image ref={mascotRef} src={assetPath("/brand/detective-cooking.webp")} alt="" width={200} height={200} loading="eager"
               className="arrival-mascot" unoptimized />
           </div>
           <p ref={captionRef} className="arrival-caption">Putting your trail together…</p>

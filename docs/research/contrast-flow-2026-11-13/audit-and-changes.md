@@ -95,3 +95,21 @@ Physical phone keyboard/install behavior and screen-reader output remain outside
 this run. The visible changes are design hypotheses intended to make the first
 action and current location easier to recognize; feedback from real users remains
 useful after deployment.
+
+## Live cold-connection follow-up
+
+The first public smoke test exposed an independent flow delay: the setup overlay
+waited for the 1,120,606-byte cooking PNG to decode before revealing the caption or
+starting its animation. One live asset probe took about eight seconds; the browser
+also waited for download/decode. The tracker itself was already saved.
+
+A transparent 420px WebP delivery rendition is now 38,938 bytes (about 96.5% smaller),
+with the original PNG preserved. Setup preloads that small rendition while answers
+are entered. The status caption stays readable during a wait, and a 2.5-second
+image-ready bound skips the decorative handoff if delivery fails/stalls. Healthy
+connections retain the full requested animation timing. This changes no financial
+processing, setup completion or saved records.
+
+Six focused Chromium/WebKit checks passed for the normal handoff, a deliberately
+stalled illustration, and offline saving. The added stalled-image cases bring
+coverage to 80 distinct browser scenarios across this iteration and its follow-up.

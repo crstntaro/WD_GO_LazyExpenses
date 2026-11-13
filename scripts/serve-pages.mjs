@@ -3,7 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 const basePath=process.env.NEXT_PUBLIC_BASE_PATH??"/WD_GO_LazyExpenses";
 const root=path.resolve("out"),port=Number(process.env.PORT??3200);
-const types={".html":"text/html; charset=utf-8",".js":"text/javascript",".css":"text/css",".png":"image/png",".svg":"image/svg+xml",".ico":"image/x-icon",".webmanifest":"application/manifest+json",".json":"application/json",".txt":"text/plain",".woff2":"font/woff2"};
+const types={".html":"text/html; charset=utf-8",".js":"text/javascript",".css":"text/css",".png":"image/png",".webp":"image/webp",".svg":"image/svg+xml",".ico":"image/x-icon",".webmanifest":"application/manifest+json",".json":"application/json",".txt":"text/plain",".woff2":"font/woff2"};
 http.createServer(async(req,res)=>{
  try {
   const pathname=decodeURIComponent(new URL(req.url,"http://localhost").pathname);

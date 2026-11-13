@@ -71,7 +71,7 @@ test("welcome, setup, mascot handoff and return visits preserve local data", asy
   await page.getByLabel("Default for new expenses").selectOption({ label: "GCash" });
   await capture(page, info.outputPath("setup-payment-sources.png"));
   await page.getByRole("button", { name: "Start tracking" }).click();
-  await expect(page.locator(".arrival-mascot")).toHaveAttribute("src", "/brand/detective-cooking.png");
+  await expect(page.locator(".arrival-mascot")).toHaveAttribute("src", "/brand/detective-cooking.webp");
   await expect(page.locator(".arrival-caption")).toHaveText("Putting your trail together…");
   await page.locator(".arrival-mascot").evaluate(async (element: HTMLImageElement) => {
     await element.decode();
@@ -368,4 +368,17 @@ test("payment sources persist, filter spending, edit old entries, archive and re
   await page.getByLabel("Amount · PHP").fill("100");
   await page.getByRole("button", { name: "Add expense", exact: true }).click();
   expect((await records(page))[0]).toMatchObject({ name: "Coffee", accountId: "wallet" });
+});
+
+test("a stalled setup illustration cannot block an already-saved tracker", async ({ page }) => {
+  await page.route("**/brand/detective-cooking.webp", () => {});
+  await page.addInitScript(() => localStorage.setItem("whereditgo-setup-v1", JSON.stringify({version:1,step:4,name:"Alex",goal:"understand",completed:false,budgetEnabled:false,budgetInput:"",accounts:[{id:"cash",name:"Cash",kind:"cash"}],defaultAccountId:"cash"})));
+  await page.goto("/");
+  await page.getByRole("button", {name:"Start tracking",exact:true}).click();
+  await expect(page.locator(".arrival-caption")).toBeVisible();
+  await expect(page.locator(".mascot-arrival-overlay")).toHaveCount(0, {timeout:5000});
+  await expect(page.locator("#entry-title")).toBeVisible();
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem("whereditgo-setup-v1")!).completed)).toBe(true);
+  await log(page,"30 jeep");
+  expect((await records(page))[0]).toMatchObject({name:"Jeep",amount:30});
 });

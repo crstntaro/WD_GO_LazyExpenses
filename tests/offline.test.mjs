@@ -58,7 +58,7 @@ function fixture(prefix = "") {
 test("offline install caches the app shell, icons, scripts, styles, and mascot", async () => {
   const f = fixture();
   await f.lifecycle("install");
-  for (const file of ["/", "/icon", "/icon1", "/icon2", "/icon3", "/favicon.ico", "/apple-icon", "/manifest.webmanifest", "/brand/paper-detective.png", "/brand/detective-inspecting.png", "/brand/detective-waiting.png", "/brand/detective-celebrating.png", "/brand/detective-expressions.png", "/brand/detective-cooking.png", "/brand/detective-icon.png", "/_next/static/app.css", "/_next/static/app.js", "/_next/static/mascot.png"]) {
+  for (const file of ["/", "/icon", "/icon1", "/icon2", "/icon3", "/favicon.ico", "/apple-icon", "/manifest.webmanifest", "/brand/paper-detective.png", "/brand/detective-inspecting.png", "/brand/detective-waiting.png", "/brand/detective-celebrating.png", "/brand/detective-expressions.png", "/brand/detective-cooking.webp", "/brand/detective-icon.png", "/_next/static/app.css", "/_next/static/app.js", "/_next/static/mascot.png"]) {
     assert.ok(f.files.has(`https://example.test${file}`), file);
   }
 });

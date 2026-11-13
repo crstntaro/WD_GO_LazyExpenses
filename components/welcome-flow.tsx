@@ -31,6 +31,11 @@ function SetupCompanion({ children }: { children: React.ReactNode }) {
 
 export function WelcomeFlow({ setup, update, onComplete }: Props) {
   const { step } = setup;
+  useEffect(() => {
+    const image = new window.Image();
+    image.src = assetPath("/brand/detective-cooking.webp");
+    void image.decode().catch(() => {});
+  }, []);
   const [error, setError] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const setupRef = useRef<HTMLElement>(null);

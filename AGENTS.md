@@ -250,3 +250,10 @@ remember, recover what you missed, understand where money went. PHP is the defau
 - Audit/captures: docs/research/contrast-flow-2026-11-13/audit-and-changes.md.
   e2e/contrast-flow.spec.ts checks no-hover ratios, custom extremes, category colors,
   scroll reset and empty-state clarity. Color never replaces existing text labels.
+
+- Cooking handoff delivery uses the 420px transparent detective-cooking.webp
+  rendition (original PNG stays as the identity/source artifact). Welcome preloads
+  it during answers; DashboardArrival bounds decode at 2.5s and keeps status text
+  visible. Never let a decorative asset block an already-saved tracker. Keep the
+  WebP in both scoped service-worker asset lists; stalled-image regression lives
+  in e2e/tracker.spec.ts. Healthy connections keep the full handoff duration.
