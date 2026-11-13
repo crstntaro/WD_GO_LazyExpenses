@@ -1,0 +1,29 @@
+import { test, expect, type Page } from "@playwright/test";
+const setup={version:1,step:4,name:"Alex",goal:"understand",completed:true,budgetEnabled:false,budgetInput:"",accounts:[{id:"g",name:"GCash",kind:"ewallet"}],defaultAccountId:"g"};
+const errors=new WeakMap<Page,string[]>();
+test.beforeEach(async({page})=>{const list:string[]=[];errors.set(page,list);page.on("pageerror",e=>list.push(e.message));await page.addInitScript(setup=>{if(localStorage.getItem("whereditgo-setup-v1"))return;localStorage.setItem("whereditgo-setup-v1",JSON.stringify(setup));localStorage.setItem("whereditgo-transactions-v1",JSON.stringify([['a','Lunch',150,'Food & Drinks'],['b','Jeep',30,'Transport'],['c','Groceries',800,'Groceries']].map(([id,name,amount,category])=>({id,name,amount,category,date:new Date().toISOString(),accountId:'g',source:'manual'}))));},setup);await page.goto('/');await expect(page.locator('#entry-title')).toBeVisible();});
+test.afterEach(({page})=>expect(errors.get(page)).toEqual([]));
+async function contrastPairs(page:Page){return page.evaluate(()=>{
+ const css=(selector:string,pseudo?:string)=>getComputedStyle(document.querySelector(selector)!,pseudo);
+ return {field:[css('.peso-input').borderTopColor,css('.peso-input').backgroundColor],placeholder:[css('#expense-input','::placeholder').color,css('.peso-input').backgroundColor],selected:[css('#tab-log').color,css('.nav-selection').backgroundColor],mode:[css('.entry-mode-toggle').borderTopColor,css('.entry-mode-toggle').backgroundColor],source:[css('#log-account').borderTopColor,css('#log-account').backgroundColor]};
+});}
+function ratio(a:string,b:string){const lum=(color:string)=>{const nums=color.match(/[\d.]+/g)!.slice(0,3).map(Number).map(n=>{if(!color.startsWith('color(srgb'))n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4});return nums.reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0)};const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
+test('unfocused controls, placeholder and selected navigation have measurable contrast in both themes',async({page})=>{
+ for(const theme of ['dark','light']){
+  if(theme==='light'){await page.getByRole('tab',{name:'Settings',exact:true}).click();await page.locator('#appearance-title-section > summary').click();await page.getByRole('switch',{name:'Light mode',exact:true}).click();await page.waitForTimeout(450);await page.getByRole('tab',{name:'Log',exact:true}).click();}
+  await page.mouse.move(0,0);const pairs=await contrastPairs(page);for(const [key,pair] of Object.entries(pairs))expect(ratio(pair[0],pair[1]),`${theme} ${key}`).toBeGreaterThanOrEqual(key==='selected'||key==='placeholder'?4.5:3);
+ }
+});
+test('extreme custom colors retain readable active text and a visible action boundary',async({page})=>{
+ for(const color of ['#000000','#FFFFFF']){await page.getByRole('tab',{name:'Settings',exact:true}).click();const appearance=page.locator('#appearance-title-section');if(await appearance.getAttribute('open')===null)await appearance.locator(':scope > summary').click();await page.getByLabel('Hex color',{exact:true}).fill(color);await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('whereditgo-setup-v1')!).accentColor)).toBe(color);await page.getByRole('tab',{name:'Log',exact:true}).click();const pairs=await contrastPairs(page);expect(ratio(...pairs.selected as [string,string])).toBeGreaterThanOrEqual(4.5);const button=await page.locator('.save-expense').evaluate(e=>{const s=getComputedStyle(e);return [s.color,s.backgroundColor,s.borderTopColor]});expect(ratio(button[0],button[1])).toBeGreaterThanOrEqual(4.5);expect(ratio(button[2],button[1])).toBeGreaterThanOrEqual(3);}
+});
+test('navigation returns to the visible page heading after a long scrolled section',async({page})=>{
+ await page.getByRole('tab',{name:'Analytics',exact:true}).click();await page.locator('.analytics-breakdown').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));
+ for(const [name,heading] of [['Entries','Your entries.'],['Catch-Up','Organize expenses.'],['Settings','Settings']]){await page.getByRole('tab',{name:name==='Catch-Up'?/^Catch-Up/:name,exact:name!=='Catch-Up'}).click();await expect(page.getByRole('heading',{name:heading,exact:true})).toBeInViewport();await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);expect((await page.locator('.masthead').boundingBox())!.y).toBeGreaterThanOrEqual(0);await page.evaluate(()=>scrollTo({top:document.body.scrollHeight,behavior:'instant'}));}
+});
+test('category colors distinguish named groups consistently between records and analytics',async({page})=>{
+ await page.getByRole('tab',{name:'Entries',exact:true}).click();const dots=await page.locator('#panel-entries .category-dot').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundColor));expect(new Set(dots).size).toBe(3);await page.getByRole('tab',{name:'Analytics',exact:true}).click();const bars=await page.locator('.analytics-breakdown .data-bar > span').evaluateAll(es=>es.map(e=>getComputedStyle(e).backgroundColor));expect(new Set(bars).size).toBe(3);expect(new Set(dots)).toEqual(new Set(bars));
+});
+test('a new visitor sees the logging task without empty summary or history blocks',async({page})=>{
+ await page.evaluate(()=>localStorage.setItem('whereditgo-transactions-v1','[]'));await page.reload();await expect(page.locator('#entry-title')).toBeVisible();await expect(page.locator('#panel-log .spending-slip')).toHaveCount(0);await expect(page.locator('#panel-log .recent-strip-heading')).toHaveCount(0);await page.setViewportSize({width:320,height:740});const save=(await page.getByRole('button',{name:'Save expense',exact:true}).boundingBox())!,dock=(await page.getByRole('tablist').boundingBox())!;expect(save.y+save.height).toBeLessThan(dock.y);
+});

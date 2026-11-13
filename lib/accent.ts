@@ -14,6 +14,7 @@ export function hexToHsl(hex: string) {
   return { h, s: d ? d / (1 - Math.abs(2 * l - 1)) * 100 : 0, l: l * 100 };
 }
 // Self-contained so the same contrast-safe tokens can run before hydration.
+// Readable accent text must clear elevated surfaces as well as the page canvas.
 export function accentTokens(hex: string) {
   if (!/^#[0-9a-f]{6}$/i.test(hex)) hex = "#A7B4F3";
   const rgb = (value: string) => [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16));
@@ -22,7 +23,7 @@ export function accentTokens(hex: string) {
   const mix = (target: number, t: number) => "#" + rgb(hex).map((n) => Math.round(n * (1 - t) + target * t).toString(16).padStart(2, "0")).join("");
   const readable = (background: string, target: number) => { for (let i = 0; i <= 50; i++) { const color = mix(target, i / 50); if (contrast(color, background) >= 4.5) return color; } return mix(target, 1); };
   const inks = ["#121b22", "#ffffff", "#000000"].sort((a, b) => contrast(b, hex) - contrast(a, hex));
-  return { "--custom-action": hex, "--custom-hover": mix(lum(hex) > .5 ? 0 : 255, .08), "--custom-ink": inks[0], "--custom-accent-dark": readable("#121b22", 255), "--custom-accent-light": readable("#f8f3e9", 0) };
+  return { "--custom-action": hex, "--custom-hover": mix(lum(hex) > .5 ? 0 : 255, .08), "--custom-ink": inks[0], "--custom-accent-dark": readable("#2b3e4b", 255), "--custom-accent-light": readable("#e9e3d8", 0) };
 }
 export function applyAccent(accent?: string, color?: string) {
   const root = document.documentElement;

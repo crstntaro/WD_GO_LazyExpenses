@@ -31,7 +31,7 @@ export function EntriesPanel({ items, accounts, suggestedNames, onEdit, onLog, l
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return <>
-    <div className="panel-heading entries-heading"><div><span className="eyebrow">THE PAPER TRAIL</span><h1>Your spending.</h1></div><button type="button" className="text-button" onClick={exportCSV} disabled={!visible.length}>Export CSV</button></div>
+    <div className="panel-heading entries-heading"><div><span className="eyebrow">THE PAPER TRAIL</span><h1>Your entries.</h1></div><button type="button" className="text-button" onClick={exportCSV} disabled={!visible.length}>Export CSV</button></div>
     <div className="period-options" role="group" aria-label="Spending period">{([["month", "This month"], ["last-month", "Last month"], ["all", "All time"], ["custom", "Dates"]] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={period === value} onClick={() => setPeriod(value)}>{label}</button>)}</div>
     {period === "custom" && <div className="date-range flow-enter"><label>From<input type="date" value={from} max={to || localDateInput()} onChange={(event) => setFrom(event.target.value)} /></label><label>To<input type="date" value={to} min={from} max={localDateInput()} onChange={(event) => setTo(event.target.value)} /></label></div>}
     {invalidRange && <p className="field-error" role="alert">Choose a start date on or before the end date.</p>}

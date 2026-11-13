@@ -233,3 +233,20 @@ remember, recover what you missed, understand where money went. PHP is the defau
 - Service-worker root comes from registration.scope. Cache names and asset allowlists
   are scoped to the deployment path; never clear another deployment's shell cache.
   Preserve existing localStorage keys and explain origin-specific data on migrations.
+
+- Contrast hierarchy: field/panel/control-edge tokens distinguish editable inputs
+  before hover. Iris/custom accent identifies primary actions/current location;
+  attention color identifies spending/review, positive color supports context.
+  Keep dark surfaces dark and cream light surfaces intact. lib/category-tone.ts
+  only maps visual tokens; never normalize or rename saved categories.
+- Floating navigation uses a tinted, accent-outlined pill with a stable readable
+  text color while moving. Do not pair a bright moving pill with label-color fades
+  that become unreadable before the pill arrives. Selected period buttons switch
+  foreground/background together. Custom accent foregrounds must clear elevated
+  surfaces, not only the page canvas.
+- Tab changes reset scroll after the DOM switch via useLayoutEffect; prevent scroll
+  anchoring in the changing tracker body. Empty Log hides unused summaries/history.
+  Page jobs: Log, Your entries, Spending overview, Organize expenses, Settings.
+- Audit/captures: docs/research/contrast-flow-2026-11-13/audit-and-changes.md.
+  e2e/contrast-flow.spec.ts checks no-hover ratios, custom extremes, category colors,
+  scroll reset and empty-state clarity. Color never replaces existing text labels.

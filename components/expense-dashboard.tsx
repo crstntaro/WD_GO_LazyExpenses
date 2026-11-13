@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { chooseLogCopy, logCopy } from "@/lib/log-copy";
 import { AppHeader } from "@/components/app-header";
 import { LogMascot } from "@/components/log-mascot";
@@ -107,6 +107,8 @@ export function ExpenseDashboard({ setup, onSetup, onUpdateSetup }: Props) {
   }, [reviewId, tab]);
 
 
+  useLayoutEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [tab]);
+
   function changeTab(next: Tab) {
     if (next === "log" && tab !== "log") setCopyIndex(previous => chooseLogCopy(previous));
     setTab(next);
@@ -212,14 +214,14 @@ export function ExpenseDashboard({ setup, onSetup, onUpdateSetup }: Props) {
           <button className="text-button log-catch-up-link" type="button" onClick={() => changeTab("catch-up")}>Catch up on a missed day <span aria-hidden="true">→</span></button>
           {usuals.length > 0 && <div className="usuals"><span>Your shortcuts</span><div>{usuals.map((usual) => <button type="button" key={`${usual.amount}-${usual.name}`} onClick={() => { setEntryMode("amount"); setEntry(String(usual.amount)); setExpenseName(usual.name); setDetailsOpen(true); setError(""); inputRef.current?.focus(); }}>
             <strong>{money(usual.amount)}</strong><span>{usual.name}</span></button>)}</div></div>}
-          <section className="spending-slip" aria-label="Spending summary">
+          {(monthlyBudget !== null || transactions.length > 0) && <section className="spending-slip" aria-label="Spending summary">
             <div><span>This month</span><strong>{loaded ? money(monthSpent / 100) : "—"}</strong></div>
-            {monthlyBudget !== null ? <div><span>{monthlyBudget >= monthSpent ? "Budget left" : "Over budget"}</span><strong>{money(Math.abs(monthlyBudget - monthSpent) / 100)}</strong></div> : <button className="text-button" type="button" onClick={() => changeTab("analytics")}>See spending →</button>}
+            {monthlyBudget !== null ? <div><span>{monthlyBudget >= monthSpent ? "Budget left" : "Over budget"}</span><strong>{money(Math.abs(monthlyBudget - monthSpent) / 100)}</strong></div> : <button className="text-button" type="button" onClick={() => changeTab("analytics")}>Open Analytics →</button>}
             {monthlyBudget !== null && <div className="budget-track" role="progressbar" aria-label="Monthly budget used" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100, Math.round(monthSpent / monthlyBudget * 100))} aria-valuetext={`${money(monthSpent / 100)} of ${money(monthlyBudget / 100)} recorded`}><span style={{ width: `${Math.min(100, monthSpent / monthlyBudget * 100)}%` }} /></div>}
-          </section>
-          <div className="recent-strip-heading"><h2>Latest entries</h2><button className="text-button" type="button" onClick={() => changeTab("entries")}>All entries <span aria-hidden="true">→</span></button></div>
-          {!loaded ? <p className="empty-copy">Opening your paper trail…</p> : sorted.length ? <EntryList accounts={accounts} suggestedNames={suggestedNames} items={sorted.slice(0, 3)} onEdit={edit} lastAddedId={lastAddedId} /> : <p className="empty-copy">No entries yet.</p>}
-          {review.length > 0 && <button className="catch-up-nudge" type="button" onClick={() => changeTab("catch-up")}><span><strong>{review.length} {review.length === 1 ? "entry has" : "entries have"} a loose end.</strong></span><span aria-hidden="true">→</span></button>}
+          </section>}
+          {sorted.length > 0 && <div className="recent-strip-heading"><h2>Latest entries</h2><button className="text-button" type="button" onClick={() => changeTab("entries")}>All entries <span aria-hidden="true">→</span></button></div>}
+          {!loaded ? <p className="empty-copy">Opening your paper trail…</p> : sorted.length ? <EntryList accounts={accounts} suggestedNames={suggestedNames} items={sorted.slice(0, 3)} onEdit={edit} lastAddedId={lastAddedId} /> : null}
+          {review.length > 0 && <button className="catch-up-nudge" type="button" onClick={() => changeTab("catch-up")}><span><strong>{review.length} {review.length === 1 ? "expense needs" : "expenses need"} details.</strong></span><span aria-hidden="true">→</span></button>}
         </section>
 
         <section role="tabpanel" id="panel-entries" aria-labelledby="tab-entries" hidden={tab !== "entries"} className="tab-panel">
@@ -229,8 +231,8 @@ export function ExpenseDashboard({ setup, onSetup, onUpdateSetup }: Props) {
         <section role="tabpanel" id="panel-analytics" aria-labelledby="tab-analytics" hidden={tab !== "analytics"} className="tab-panel"><AnalyticsPanel items={transactions} accounts={accounts} onEdit={edit} suggestedNames={suggestedNames} /></section>
 
         <section role="tabpanel" id="panel-catch-up" aria-labelledby="tab-catch-up" hidden={tab !== "catch-up"} className="tab-panel">
-          <div className="catch-up-heading"><div className="panel-heading"><h1>Pick up the trail.</h1></div></div>
-          <div className="recovery-note"><strong>{review.length ? `${review.length} ${review.length === 1 ? "loose end" : "loose ends"} to look through.` : "Nothing waiting for details."}</strong>{review.length > 0 && <p>Already counted. Just checking the details.</p>}</div>
+          <div className="catch-up-heading"><div className="panel-heading"><h1>Organize expenses.</h1></div></div>
+          <div className="recovery-note"><strong>{review.length ? `${review.length} ${review.length === 1 ? "expense" : "expenses"} to organize.` : "Nothing to organize."}</strong>{review.length > 0 && <p>Already counted. Just checking the details.</p>}</div>
           {reviewItem ? <article className="review-focus" key={reviewItem.id}><LogMascot state="thinking" />
             <span className="eyebrow">ONE AT A TIME</span><div className="review-title"><h2 ref={reviewHeading} tabIndex={-1}>{capitalizeExpense(candidate ?? reviewItem.name)}</h2><strong>{money(reviewItem.amount)}</strong></div>
             <p>{dateLabel(reviewItem.date)} · {accountLabel(reviewItem.accountId, accounts)}</p>

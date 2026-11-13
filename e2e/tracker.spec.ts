@@ -169,7 +169,7 @@ test("explicit confirmation teaches a suggestion without adding another expense"
   expect(result).toHaveLength(3);
   expect(result[0]).toMatchObject({ source: "confirmed", needsReview: false });
   await page.getByRole("tab", { name: "Catch-Up", exact: true }).click();
-  await expect(page.getByText("Nothing waiting for details.")).toBeVisible();
+  await expect(page.getByText("Nothing to organize.")).toBeVisible();
 });
 
 test("an unanswered prompt vanishes and leaves the saved guess available in Catch-Up", async ({ page }) => {
@@ -183,7 +183,7 @@ test("an unanswered prompt vanishes and leaves the saved guess available in Catc
   expect(result).toHaveLength(3);
   expect(result[0]).toMatchObject({ name: "Monster", source: "suggested", needsReview: true });
   await page.getByRole("tab", { name: /Catch-Up/ }).click();
-  await expect(page.getByText("1 loose end to look through.")).toBeVisible();
+  await expect(page.getByText("1 expense to organize.")).toBeVisible();
 });
 
 test("the prompt pauses while a keyboard user is reviewing it", async ({ page }) => {

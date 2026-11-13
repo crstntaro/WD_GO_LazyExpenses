@@ -143,7 +143,9 @@ test("custom accents validate, round-trip hue and keep text readable in both the
     const lum = (hex) => [1,3,5].map((i)=>parseInt(hex.slice(i,i+2),16)/255).map((v)=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
     const ratio = (a,b) => (Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
     assert.ok(ratio(tokens["--custom-accent-dark"], "#121b22") >= 4.5);
+    assert.ok(ratio(tokens["--custom-accent-dark"], "#2b3e4b") >= 4.5);
     assert.ok(ratio(tokens["--custom-accent-light"], "#f8f3e9") >= 4.5);
+    assert.ok(ratio(tokens["--custom-accent-light"], "#e9e3d8") >= 4.5);
     assert.ok(ratio(tokens["--custom-ink"], color) >= 4.5);
     assert.equal(JSON.stringify(vm.runInNewContext(`(${accent.accentTokens.toString()})('${color}')`)), JSON.stringify(tokens));
   }
